@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include dataeng_toolbox *.py
+recursive-include tests *.py
+recursive-include examples *.py *.md
+exclude .gitignore
+exclude .github/workflows/*.yml

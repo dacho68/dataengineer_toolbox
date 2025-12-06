@@ -1,0 +1,15 @@
+generate me a python directory structure with the following instructions:
+1 - build a wheel package name "dataeng_toolbox" that support python version 11 or higher
+2 - able to publish to pypi server
+3 - Readme.md for GitHub that explain of how to use the dataeng_toolbox
+4 - Add UnitTest folder
+5 - Add Example folder
+6 - Support GitHub Action
+7 - just add one class Core that have  a function hello-world
+8 - ensure that it can build and generate wheel file
+9 - ensure that it can also publish to pypi server
+------
+install all the dependencies in the virtual env,
+D:/CAE/DE/src/dataengineer_toolbox/.venv/Scripts/python.exe -m pip install -e .
+--- To build
+python -m build
