@@ -8,8 +8,24 @@ generate me a python directory structure with the following instructions:
 7 - just add one class Core that have  a function hello-world
 8 - ensure that it can build and generate wheel file
 9 - ensure that it can also publish to pypi server
-------
-install all the dependencies in the virtual env,
-D:/CAE/DE/src/dataengineer_toolbox/.venv/Scripts/python.exe -m pip install -e .
---- To build
+
+-- Create virtual environment
+
+E:\dev\DE\src\dataengineer_toolbox>python -m venv venv
+
+-- Use virtual environment
+
+>venv\Scripts\activate
+
+-- Install poetry if you don't have it
+>pip install poetry
+
+# Install dependencies defined in pyproject.toml
+>poetry install
+
+--install all the package in editable  mode
+
+>python.exe -m pip install -e .
+
+-- To build
 python -m build
