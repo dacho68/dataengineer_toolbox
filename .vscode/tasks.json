@@ -21,10 +21,13 @@
         {
             "label": "build dataengineer_toolbox",
             "type": "shell",
-            "command": "python",
+            "command": "powershell",
             "args": [
-                "-m",
-                "build"
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                "& python -c \"import build\" ; if ($LASTEXITCODE -ne 0) { & python -m pip install --upgrade build } ; & python -m build"
             ],
             "dependsOn": "cleanup dataengineer_toolbox",
             "cwd": ".",

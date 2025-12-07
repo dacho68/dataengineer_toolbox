@@ -7,6 +7,19 @@ This module contains the main Core class with essential functionality.
 from typing import Dict
 
 
+class BasePlatform:
+    def __init__(self, spark, sparkutils) -> None:
+        self.spark = spark
+        self.sparkutils = sparkutils
+
+    def get_spark(self):
+        return self.spark
+    
+    def get_sparkutils(self):
+        return self.sparkutils
+    
+    
+
 class Core:
     """
     Core class providing fundamental functionality for the data engineering toolbox.
