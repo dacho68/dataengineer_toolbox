@@ -1,0 +1,38 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cleanup dataengineer_toolbox",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "if (Test-Path .\\build) { Remove-Item -Recurse -Force .\\build }" ,
+                "if (Test-Path .\\dist) { Remove-Item -Recurse -Force .\\dist }",
+                "if (Test-Path .\\*.egg-info) { Remove-Item -Recurse -Force .\\*.egg-info }"
+            ],
+            "options": {
+                "cwd": "."
+            },
+            "group": "build"
+        },
+        {
+            "label": "build dataengineer_toolbox",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "build"
+            ],
+            "dependsOn": "cleanup dataengineer_toolbox",
+            "cwd": ".",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
