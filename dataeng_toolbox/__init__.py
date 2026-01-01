@@ -9,5 +9,6 @@ __author__ = "Your Name"
 __email__ = "your.email@example.com"
 
 from .core import Core
+from .data_loader import DataLoader
 
-__all__ = ["Core"]
+__all__ = ["Core", "DataLoader"]

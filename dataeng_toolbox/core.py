@@ -5,6 +5,7 @@ This module contains the main Core class with essential functionality.
 """
 
 from typing import Dict
+from unicodedata import name
 
 
 class BasePlatform:
@@ -19,6 +20,14 @@ class BasePlatform:
         return self.sparkutils
     
     
+class Context:
+    def __init__(self, platform: BasePlatform) -> None:
+        self.__platform__ = platform
+
+    def get_platform(self) -> BasePlatform:
+        return self.__platform__
+
+
 
 class Core:
     """
