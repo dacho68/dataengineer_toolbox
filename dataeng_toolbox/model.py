@@ -2,6 +2,8 @@ from enum import Enum
 from pyspark.sql.types import StructField
 from pydantic import BaseModel
 
+from dataeng_toolbox.core import BasePlatform
+
 class Constants:
     METADATA_IDENTITY_KEY = "identity"
 
@@ -25,7 +27,7 @@ class IngestionType(Enum):
 
 class PlatformType(Enum):
     UNDEFINED = 0
-    BATABRICKS = 1
+    DATABRICKS = 1
     FABRIC = 2
 
 
@@ -74,12 +76,4 @@ class IncrementalController(object):
                     spark.sql(f"CREATE TABLE IF NOT EXISTS {table_name} USING DELTA")
         except Exception as e:
             raise RuntimeError(f"Failed to create delta table '{table_name}': {str(e)}")
-
-
-class Context(object):
-    """Context class to hold platform information."""
-    
-    def __init__(self, platform: PlatformType = PlatformType.Undefined) -> None:
-        self.platform = platform    
-
 

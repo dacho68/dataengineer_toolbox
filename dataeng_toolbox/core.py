@@ -7,6 +7,8 @@ This module contains the main Core class with essential functionality.
 from typing import Dict
 from unicodedata import name
 
+from dataeng_toolbox.model import PlatformType
+
 
 class BasePlatform:
     def __init__(self, spark, sparkutils) -> None:
@@ -19,6 +21,15 @@ class BasePlatform:
     def get_sparkutils(self):
         return self.sparkutils
     
+class DatabricksPlatform(BasePlatform):
+    def __init__(self, spark, dbutils) -> None:
+        super().__init__(spark, dbutils)
+
+    
+class FabricPlatform(BasePlatform):
+    def __init__(self, spark, dbutils) -> None:
+        super().__init__(spark, dbutils)
+
     
 class Context:
     def __init__(self, platform: BasePlatform) -> None:
@@ -26,6 +37,20 @@ class Context:
 
     def get_platform(self) -> BasePlatform:
         return self.__platform__
+
+class PlatformFactory:
+    @staticmethod
+    def create_platform(platform_type: PlatformType, spark=None, dbutils=None):
+        """Factory method to create platform instances."""
+        if platform_type == PlatformType.DATABRICKS:
+            return DatabricksPlatform(spark, dbutils)
+        elif platform_type == PlatformType.FABRIC:
+            # Implement Fabric platform initialization here
+            return FabricPlatform(spark, dbutils)
+        else:
+            raise ValueError(f"Unsupported platform type: {platform_type}")
+
+
 
 
 

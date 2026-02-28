@@ -1,12 +1,33 @@
+
+from typing import Union
+from pyspark.sql.types import StructType, StructField
+from pyspark.sql import DataFrame
+from dataeng_toolbox.model import ColumnModel
 from dataeng_toolbox.model import ScdType, Context, VTableModel
+from abc import ABC, abstractmethod
 
-
-class BaseEntity(object):
+class BaseEntity(ABC):
     """Base class for all entities."""
     def __init__(self, context: Context,  scd_type: ScdType) -> None:
         self._scd_type = scd_type
         self._context = context
 
+    def get_scd_type(self) -> ScdType:
+        """Get the SCD type of the entity."""
+        return self._scd_type
+    
+    def get_context(self) -> Context:
+        """Get the context of the entity."""
+        return self._context
+    
+    def get_schema(self) -> StructType | None:
+        """Get the schema for the entity."""
+        raise NotImplementedError("Subclasses must implement this method.")
+
+    @abstractmethod
+    def apply_transformations(self) -> DataFrame:
+        """Apply transformations to the DataFrame."""
+        raise NotImplementedError("Subclasses must implement this method.")
 
 class SilverEntity(BaseEntity):
     def __init__(self, context: Context, scd_type: ScdType) -> None:
@@ -23,3 +44,7 @@ class SilverEntity(BaseEntity):
         dependencies = self._get_dependencies()
         for dependency in dependencies:
             pass  # Implement loading logic here    
+
+    def get_schema(self) -> list[ColumnModel]:
+        """Get the schema for the silver entity."""
+        return []
