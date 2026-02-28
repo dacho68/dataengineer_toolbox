@@ -1,3 +1,14 @@
 # Objective
 Create a full python solution and project with using toml for configuration. The project able to build 
 and release to pypi.
+
+#steps
+1. Create a new python project with the following structure:
+- src
+- examples
+- tests
+
+2. Create a pyproject.toml file for the project configuration.
+    
+3. Implement a simple function in the src directory, for example, a function that adds two numbers.
+
