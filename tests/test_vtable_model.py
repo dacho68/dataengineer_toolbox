@@ -6,7 +6,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from dataeng_toolbox.model import VTableModel
+from dataeng_toolbox.model import VTableModel, TableType
 
 
 # ---------------------------------------------------------------------------
@@ -138,13 +138,15 @@ class TestVTableModelDump:
 
     def test_model_dump_contains_all_keys(self, basic_vtable):
         result = basic_vtable.model_dump()
-        assert set(result.keys()) == {"catalog", "namespace", "table_name"}
+        assert set(result.keys()) == {"catalog", "namespace", "table_name", "table_type"}
 
     def test_model_dump_values_match(self, basic_vtable):
         result = basic_vtable.model_dump()
         assert result["catalog"] == "main"
         assert result["namespace"] == "sales"
         assert result["table_name"] == "orders"
+        # default table_type should be UNDEFINED
+        assert basic_vtable.table_type == TableType.UNDEFINED
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +171,7 @@ class TestVTableModelJsonSerialization:
         assert restored.catalog == basic_vtable.catalog
         assert restored.namespace == basic_vtable.namespace
         assert restored.table_name == basic_vtable.table_name
+        assert restored.table_type == basic_vtable.table_type
 
     def test_dict_roundtrip_via_model_validate(self, basic_vtable):
         data = basic_vtable.model_dump()
@@ -176,10 +179,11 @@ class TestVTableModelJsonSerialization:
         assert restored.catalog == basic_vtable.catalog
         assert restored.namespace == basic_vtable.namespace
         assert restored.table_name == basic_vtable.table_name
+        assert restored.table_type == basic_vtable.table_type
 
     def test_list_json_roundtrip(self, basic_vtable, another_vtable):
         vtables = [basic_vtable, another_vtable]
-        json_str = json.dumps([v.model_dump() for v in vtables])
+        json_str = json.dumps([v.model_dump(mode="json") for v in vtables])
         restored = [VTableModel(**item) for item in json.loads(json_str)]
 
         assert len(restored) == 2
@@ -187,6 +191,7 @@ class TestVTableModelJsonSerialization:
             assert original.catalog == result.catalog
             assert original.namespace == result.namespace
             assert original.table_name == result.table_name
+            assert original.table_type == result.table_type
 
 
 # ---------------------------------------------------------------------------
@@ -202,6 +207,7 @@ class TestVTableModelValidate:
         assert vtable.catalog == "main"
         assert vtable.namespace == "hr"
         assert vtable.table_name == "employees"
+        assert vtable.table_type == TableType.UNDEFINED
 
     def test_model_validate_fails_on_missing_field(self):
         with pytest.raises(ValidationError):
@@ -211,6 +217,7 @@ class TestVTableModelValidate:
         json_str = '{"catalog": "main", "namespace": "hr", "table_name": "employees"}'
         vtable = VTableModel.model_validate_json(json_str)
         assert vtable.catalog == "main"
+        assert vtable.table_type == TableType.UNDEFINED
 
 
 # ---------------------------------------------------------------------------
@@ -265,6 +272,7 @@ class TestVTableModelSchema:
         assert "catalog" in props
         assert "namespace" in props
         assert "table_name" in props
+        assert "table_type" in props
 
     def test_schema_required_fields(self):
         schema = VTableModel.model_json_schema()
@@ -272,3 +280,7 @@ class TestVTableModelSchema:
         assert "catalog" in required
         assert "namespace" in required
         assert "table_name" in required
+
+
+if __name__ == "__main__":
+    TestVTableModelJsonSerialization().test_list_json_roundtrip(basic_vtable=VTableModel(catalog="main", namespace="sales", table_name="orders"), another_vtable=VTableModel(catalog="main", namespace="inventory", table_name="products"))
