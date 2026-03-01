@@ -1,6 +1,6 @@
 from enum import Enum
 from pyspark.sql.types import StructField
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 class Constants:
@@ -45,6 +45,11 @@ class PlatformType(Enum):
     DATABRICKS = 1
     FABRIC = 2
 
+class CloudProvider(Enum):
+    UNDEFINED = 0
+    AWS = 1
+    AZURE = 2
+    GCP = 3
 
 class ColumnModel(StructField):
     def __init__(self, *arg, **kwargs) -> None:
@@ -60,41 +65,25 @@ class ColumnModel(StructField):
 class VFileModel(BaseModel):
     """Pydantic model for representing a virtual file."""
     model_config = ConfigDict(frozen=False, validate_assignment=True)
-    catalog: str
-    namespace: str
-    file_name: str
+    catalog: str | None = None
+    namespace: str | None = None
+    name: str
+    file_path: str
     file_type: FileType = FileType.UNDEFINED
 
 class VTableModel(VFileModel):
     """Pydantic model for representing a virtual table."""
-    file_name: str = ""
-    table_name: str
+    file_path: str | None = None
     table_type: TableType = TableType.UNDEFINED
 
-
-class IncrementalController(object):
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(IncrementalController, cls).__new__(cls)
-        return cls._instance
-    
-    def __init__(self):
-        pass
-    
-    def create_delta_table(self, table_name: str) -> None:
-        """Create a delta table if it does not exist."""
-        try:
-            from delta.tables import DeltaTable
-            from pyspark.sql import SparkSession
-
-            spark = SparkSession.getActiveSession()
-            if spark is not None:
-                if not DeltaTable.isDeltaTable(spark, table_name):
-                    spark.sql(f"CREATE TABLE IF NOT EXISTS {table_name} USING DELTA")
-        except Exception as e:
-            raise RuntimeError(f"Failed to create delta table '{table_name}': {str(e)}")
+    @model_validator(mode="after")
+    def validate_external_requires_delta(self) -> "VTableModel":
+        """EXTERNAL tables must use DELTA file type."""
+        if self.table_type == TableType.EXTERNAL and self.file_type != FileType.DELTA:
+            raise ValueError(
+                f"EXTERNAL tables must have FileType.DELTA, got {self.file_type}"
+            )
+        return self
 
 
 def main() -> None:
@@ -102,8 +91,8 @@ def main() -> None:
 
     Creates example VTableModel instances and prints their serialized forms.
     """
-    v1 = VTableModel(catalog="main", namespace="sales", table_name="orders")
-    v2 = VTableModel(catalog="main", namespace="inventory", table_name="products", table_type=TableType.MANAGED)
+    v1 = VTableModel(catalog="main", namespace="sales", name="orders")
+    v2 = VTableModel(catalog="main", namespace="inventory", name="products", table_type=TableType.MANAGED)
 
     print("Example VTableModel v1:")
     print(v1)

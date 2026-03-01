@@ -36,10 +36,10 @@ You will be prompted for your PyPI username and password.
 pytest --cov=dataeng_toolbox
 
 ## Run specific test file
-pytest tests\test_core.py
+pytest tests\test_vtable_model.py
 
 ## Run specific test class
-pytest tests\test_core.py::TestCore
+pytest tests\test_vtable_serialization.py::TestVTableListSerialization
 
 ## Run specific test method
-pytest tests\test_core.py::TestCore::test_initialization
+pytest tests\test_vtable_serialization.py::TestVTableListSerialization::test_dumps_returns_string

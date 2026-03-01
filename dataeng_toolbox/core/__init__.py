@@ -13,7 +13,7 @@ This module contains the main Core class with essential functionality.
 from typing import Dict
 from unicodedata import name
 
-from dataeng_toolbox.model import PlatformType
+from dataeng_toolbox.model import CloudProvider, PlatformType
 
 
 class BasePlatform:
@@ -28,15 +28,15 @@ class BasePlatform:
         return self.sparkutils
     
 class DatabricksPlatform(BasePlatform):
-    def __init__(self, spark, dbutils) -> None:
+    def __init__(self, spark, dbutils, cloud_provider = CloudProvider.AZURE) -> None:
         super().__init__(spark, dbutils)
+        self.cloud_provider = cloud_provider
 
     
 class FabricPlatform(BasePlatform):
     def __init__(self, spark, dbutils) -> None:
         super().__init__(spark, dbutils)
 
-    
 class Context:
     def __init__(self, platform: BasePlatform,  logger) -> None:
         self.__platform__ = platform

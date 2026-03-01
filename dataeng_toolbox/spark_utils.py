@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import expr
 
-from dataeng_toolbox.model import Constants
+from dataeng_toolbox.model import Constants, FileType
 from dataeng_toolbox.utils import get_logger
 
 logger = get_logger(__name__)
@@ -146,3 +146,25 @@ def scd_type2(spark, target_table: str, source_df, join_keys: list,
     """
     
     spark.sql(merge_sql)
+
+
+def load_file(spark: SparkSession, file_path: str, file_type: FileType) -> DataFrame:
+    """
+    Loads a file into a Spark DataFrame based on the specified file type.
+    
+    Args:
+        spark: SparkSession
+        file_path: Path to the file
+        file_type: Type of the file (e.g., CSV, JSON, Parquet)
+    
+    Returns:
+        DataFrame containing the loaded data
+    """
+    if file_type == FileType.CSV:
+        return spark.read.csv(file_path, header=True, inferSchema=True)
+    elif file_type == FileType.JSON:
+        return spark.read.json(file_path)
+    elif file_type == FileType.PARQUET:
+        return spark.read.parquet(file_path)
+    else:
+        raise ValueError(f"Unsupported file type: {file_type}")

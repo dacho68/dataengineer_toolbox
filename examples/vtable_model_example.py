@@ -28,10 +28,10 @@ def create_vtable_models() -> List[VTableModel]:
         List[VTableModel]: A list of virtual table models.
     """
     vtables = [
-        VTableModel(namespace="sales", table_name="orders"),
-        VTableModel(namespace="sales", table_name="customers"),
-        VTableModel(namespace="inventory", table_name="products"),
-        VTableModel(namespace="inventory", table_name="warehouses"),
+        VTableModel(namespace="sales", name="orders"),
+        VTableModel(namespace="sales", name="customers"),
+        VTableModel(namespace="inventory", name="products"),
+        VTableModel(namespace="inventory", name="warehouses"),
     ]
     return vtables
 
@@ -77,7 +77,7 @@ def main():
     vtables = create_vtable_models()
     
     for vtable in vtables:
-        print(f"   - {vtable.namespace}.{vtable.table_name}")
+        print(f"   - {vtable.namespace}.{vtable.name}")
     
     # Step 2: Serialize to JSON
     print("\n2. Serializing to JSON...")
@@ -91,13 +91,13 @@ def main():
     
     print("Deserialized VTableModel objects:")
     for vtable in deserialized_vtables:
-        print(f"   - namespace: {vtable.namespace}, table_name: {vtable.table_name}")
+        print(f"   - namespace: {vtable.namespace}, table_name: {vtable.name}")
     
     # Step 4: Verify serialization/deserialization integrity
     print("\n4. Verifying data integrity...")
     all_match = all(
         original.namespace == deserialized.namespace and
-        original.table_name == deserialized.table_name
+        original.name == deserialized.name
         for original, deserialized in zip(vtables, deserialized_vtables)
     )
     
@@ -109,10 +109,10 @@ def main():
     # Step 5: Modify a model and show validation
     print("\n5. Modifying a VTableModel instance...")
     modified_vtable = deserialized_vtables[0]
-    print(f"   Before: {modified_vtable.namespace}.{modified_vtable.table_name}")
+    print(f"   Before: {modified_vtable.namespace}.{modified_vtable.name}")
     
-    modified_vtable.table_name = "orders_updated"
-    print(f"   After:  {modified_vtable.namespace}.{modified_vtable.table_name}")
+    modified_vtable.name = "orders_updated"
+    print(f"   After:  {modified_vtable.namespace}.{modified_vtable.name}")
     
     print("\n" + "=" * 60)
     print("Example completed successfully!")

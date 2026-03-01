@@ -28,6 +28,20 @@ class BaseEntity(ABC):
     def apply_transformations(self) -> DataFrame:
         """Apply transformations to the DataFrame."""
         raise NotImplementedError("Subclasses must implement this method.")
+    
+    def apply_deletions(self) -> DataFrame:
+        """Apply deletions to the DataFrame."""
+        raise NotImplementedError("Subclasses must implement this method.")
+    
+    def initalize_state(self) -> None:
+        """Initialize any state or dependencies for the entity."""
+        pass  # Optional to implement in subclasses
+
+    def finalize_state(self) -> None:
+        """Finalize any state or dependencies for the entity."""
+        pass  # Optional to implement in subclasses 
+    
+
 
 class SilverEntity(BaseEntity):
     def __init__(self, context: Context, scd_type: ScdType) -> None:

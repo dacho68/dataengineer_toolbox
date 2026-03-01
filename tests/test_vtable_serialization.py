@@ -6,7 +6,7 @@ import json
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from dataeng_toolbox.model import VTableModel, TableType
+from dataeng_toolbox.model import FileType, VTableModel, TableType
 
 
 # ---------------------------------------------------------------------------
@@ -19,14 +19,16 @@ _LIST_ADAPTER = TypeAdapter(list[VTableModel])
 def _make_vtable(
     catalog: str = "main",
     namespace: str = "sales",
-    table_name: str = "orders",
+    name: str = "orders",
     table_type: TableType = TableType.UNDEFINED,
+    file_type: FileType = FileType.UNDEFINED,
 ) -> VTableModel:
     return VTableModel(
         catalog=catalog,
         namespace=namespace,
-        table_name=table_name,
+        name=name,
         table_type=table_type,
+        file_type=file_type,
     )
 
 
@@ -39,7 +41,7 @@ def _make_vtable(
 def vtable_list() -> list[VTableModel]:
     return [
         _make_vtable("main", "sales", "orders", TableType.MANAGED),
-        _make_vtable("main", "inventory", "products", TableType.EXTERNAL),
+        _make_vtable("main", "inventory", "products", TableType.EXTERNAL, file_type=FileType.DELTA),
         _make_vtable("dev", "hr", "employees", TableType.UNDEFINED),
     ]
 
@@ -112,7 +114,7 @@ class TestVTableListDeserialization:
         for original, result in zip(vtable_list, restored):
             assert result.catalog == original.catalog
             assert result.namespace == original.namespace
-            assert result.table_name == original.table_name
+            assert result.name == original.name
             assert result.table_type == original.table_type
 
     def test_type_adapter_roundtrip(self, vtable_list):
@@ -125,8 +127,8 @@ class TestVTableListDeserialization:
 
     def test_model_validate_json_from_string(self):
         json_str = (
-            '[{"catalog":"main","namespace":"sales","table_name":"orders","table_type":1},'
-            ' {"catalog":"dev","namespace":"hr","table_name":"employees","table_type":0}]'
+            '[{"catalog":"main","namespace":"sales","name":"orders","table_type":1},'
+            ' {"catalog":"dev","namespace":"hr","name":"employees","table_type":0}]'
         )
         restored = _LIST_ADAPTER.validate_json(json_str)
         assert len(restored) == 2
@@ -138,14 +140,14 @@ class TestVTableListDeserialization:
     def test_deserialize_table_type_by_name_raises(self):
         """Pydantic V2 int-based enums only accept integer values, not string names."""
         json_str = (
-            '[{"catalog":"main","namespace":"sales","table_name":"orders","table_type":"MANAGED"}]'
+            '[{"catalog":"main","namespace":"sales","name":"orders","table_type":"MANAGED"}]'
         )
         with pytest.raises(ValidationError):
             _LIST_ADAPTER.validate_json(json_str)
 
     def test_deserialize_missing_table_type_uses_default(self):
         """Omitting table_type should fall back to UNDEFINED."""
-        json_str = '[{"catalog":"main","namespace":"sales","table_name":"orders"}]'
+        json_str = '[{"catalog":"main","namespace":"sales","name":"orders"}]'
         restored = _LIST_ADAPTER.validate_json(json_str)
         assert restored[0].table_type == TableType.UNDEFINED
 
@@ -154,18 +156,13 @@ class TestVTableListDeserialization:
         assert restored == []
 
     def test_deserialize_invalid_table_type_raises(self):
-        json_str = '[{"catalog":"main","namespace":"sales","table_name":"orders","table_type":99}]'
+        json_str = '[{"catalog":"main","namespace":"sales","name":"orders","table_type":99}]'
         with pytest.raises((ValidationError, ValueError)):
             _LIST_ADAPTER.validate_json(json_str)
 
-    def test_deserialize_missing_required_field_raises(self):
-        """Missing catalog should raise ValidationError."""
-        json_str = '[{"namespace":"sales","table_name":"orders"}]'
-        with pytest.raises(ValidationError):
-            _LIST_ADAPTER.validate_json(json_str)
 
     def test_deserialize_wrong_type_for_catalog_raises(self):
-        json_str = '[{"catalog":123,"namespace":"sales","table_name":"orders"}]'
+        json_str = '[{"catalog":123,"namespace":"sales","name":"orders"}]'
         with pytest.raises(ValidationError):
             _LIST_ADAPTER.validate_json(json_str)
 
@@ -188,7 +185,7 @@ class TestVTableListEdgeCases:
     def test_large_list_roundtrip(self):
         table_types = [TableType.UNDEFINED, TableType.MANAGED, TableType.EXTERNAL]
         vtables = [
-            _make_vtable(f"cat{i}", f"ns{i}", f"tbl{i}", table_types[i % 3])
+            _make_vtable(f"cat{i}", f"ns{i}", f"tbl{i}", table_types[i % 3], file_type=FileType.DELTA if table_types[i % 3] == TableType.EXTERNAL else FileType.UNDEFINED)
             for i in range(100)
         ]
         json_str = _LIST_ADAPTER.dump_json(vtables)
@@ -198,11 +195,12 @@ class TestVTableListEdgeCases:
             assert result == original
 
     def test_all_table_type_values_roundtrip(self):
-        vtables = [_make_vtable(table_type=tt) for tt in TableType]
+        vtables = [_make_vtable(table_type=tt, file_type=FileType.DELTA if tt == TableType.EXTERNAL else FileType.UNDEFINED) for tt in TableType]
         json_str = _LIST_ADAPTER.dump_json(vtables)
         restored = _LIST_ADAPTER.validate_json(json_str)
         for original, result in zip(vtables, restored):
             assert result.table_type == original.table_type
+            assert result.file_type == original.file_type
 
     def test_duplicate_entries_preserved(self):
         vtable = _make_vtable()
@@ -211,3 +209,7 @@ class TestVTableListEdgeCases:
         restored = _LIST_ADAPTER.validate_json(json_str)
         assert len(restored) == 3
         assert all(v == vtable for v in restored)
+
+
+if __name__ == "__main__":
+    TestVTableListDeserialization().test_all_table_type_values_roundtrip()
