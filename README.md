@@ -30,3 +30,16 @@ twine upload dist/*
 ```
 
 You will be prompted for your PyPI username and password.
+
+# Run Unit Tests
+## Run with verbose output and coverage
+pytest --cov=dataeng_toolbox
+
+## Run specific test file
+pytest tests\test_core.py
+
+## Run specific test class
+pytest tests\test_core.py::TestCore
+
+## Run specific test method
+pytest tests\test_core.py::TestCore::test_initialization

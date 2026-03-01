@@ -1,8 +1,7 @@
 from enum import Enum
 from pyspark.sql.types import StructField
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from dataeng_toolbox.core import BasePlatform
 
 class Constants:
     METADATA_IDENTITY_KEY = "identity"
@@ -47,17 +46,12 @@ class ColumnModel(StructField):
 
 class VTableModel(BaseModel):
     """Pydantic model for representing a virtual table."""
-    
+
+    model_config = ConfigDict(frozen=False, validate_assignment=True)
+
+    catalog: str
     namespace: str
     table_name: str
-    
-    class Config:
-        """Pydantic configuration."""
-        frozen = False
-        validate_assignment = True
-
-    def __init__(self, name, bases, dict, /, **kwds):
-        super().__init__(name, bases, dict, **kwds) 
 
 class IncrementalController(object):
     _instance = None
