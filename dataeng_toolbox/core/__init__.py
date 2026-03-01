@@ -1,3 +1,9 @@
+# ---------------------------------------------------------------------------
+# File History
+# ---------------------------------------------------------------------------
+# 2026-02-28  Initial creation
+# ---------------------------------------------------------------------------
+
 """
 Core module for DataEng Toolbox.
 
@@ -32,11 +38,24 @@ class FabricPlatform(BasePlatform):
 
     
 class Context:
-    def __init__(self, platform: BasePlatform) -> None:
+    def __init__(self, platform: BasePlatform,  logger) -> None:
         self.__platform__ = platform
+        self.__logger__ = logger
+        self.__custom_properties__ = {} 
 
     def get_platform(self) -> BasePlatform:
         return self.__platform__
+
+    def get_logger(self):
+        return self.__logger__
+
+    def set_property(self, key: str, value):
+        """Set a custom property in the context."""
+        self.__custom_properties__[key] = value
+    
+    def get_property(self, key: str):
+        """Get a custom property from the context."""
+        return self.__custom_properties__.get(key, None)    
 
 class PlatformFactory:
     @staticmethod
@@ -49,9 +68,6 @@ class PlatformFactory:
             return FabricPlatform(spark, dbutils)
         else:
             raise ValueError(f"Unsupported platform type: {platform_type}")
-
-
-
 
 
 class Core:

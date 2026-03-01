@@ -6,6 +6,9 @@ from dataeng_toolbox.core import BasePlatform
 
 class Constants:
     METADATA_IDENTITY_KEY = "identity"
+    METADATA_DATA_HASH = "data_hash"
+    METADATA_KEY_HASH = "key_hash"
+    
 
     DEFAULT_SCD2_EFFECTIVE_DATE_COL = "EffectiveDate"
     DEFAULT_SCD2_END_DATE_COL = "EndDate"
@@ -52,6 +55,9 @@ class VTableModel(BaseModel):
         """Pydantic configuration."""
         frozen = False
         validate_assignment = True
+
+    def __init__(self, name, bases, dict, /, **kwds):
+        super().__init__(name, bases, dict, **kwds) 
 
 class IncrementalController(object):
     _instance = None

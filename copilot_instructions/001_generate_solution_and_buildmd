@@ -1,0 +1,14 @@
+# Objective
+Create a full python solution and project with using toml for configuration. The project able to build 
+and release to pypi repository.
+
+#steps
+1. Create a new python project dataengineer_toolbox with the following structure:
+- dataeng_toolbox
+- examples
+- tests
+
+2. Create a pyproject.toml file for the project configuration.
+    
+3. Implement a simple function in the dataeng_toolbox directory, for example, a function that adds two numbers.
+
