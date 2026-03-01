@@ -138,7 +138,7 @@ class TestVTableModelDump:
 
     def test_model_dump_contains_all_keys(self, basic_vtable):
         result = basic_vtable.model_dump()
-        assert set(result.keys()) == {"catalog", "namespace", "table_name", "table_type"}
+        assert set(result.keys()) == {"catalog", "namespace", "file_name", "file_type", "table_name", "table_type"}
 
     def test_model_dump_values_match(self, basic_vtable):
         result = basic_vtable.model_dump()

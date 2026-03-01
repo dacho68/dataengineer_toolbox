@@ -65,11 +65,9 @@ class VFileModel(BaseModel):
     file_name: str
     file_type: FileType = FileType.UNDEFINED
 
-class VTableModel(BaseModel):
+class VTableModel(VFileModel):
     """Pydantic model for representing a virtual table."""
-    model_config = ConfigDict(frozen=False, validate_assignment=True)
-    catalog: str
-    namespace: str
+    file_name: str = ""
     table_name: str
     table_type: TableType = TableType.UNDEFINED
 
