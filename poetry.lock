@@ -712,17 +712,6 @@ files = [
 [package.extras]
 windows-terminal = ["colorama (>=0.4.6)"]
 
-[[package]]
-name = "pyspark"
-version = "3.5.7"
-description = "Apache Spark Python API"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "pyspark-3.5.7.tar.gz", hash = "sha256:80e36514e0c5c126d35a26adf4f405cd4a69de96a8ea8a3c1e9a65fce2fb4eaa"},
-]
-
 [package.dependencies]
 py4j = "0.10.9.7"
 
