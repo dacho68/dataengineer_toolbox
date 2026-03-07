@@ -35,53 +35,6 @@ jobs:
       - name: Run tests
         run: pytest tests/ --tb=short
 
-  details:
-    runs-on: ubuntu-latest
-    needs: test
-    outputs:
-      new_version: ${{ steps.release.outputs.new_version }}
-      suffix: ${{ steps.release.outputs.suffix }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - name: Check Ref Type
-        if: github.ref_type != 'tag'
-        run: echo "This is not a tag; exiting"; exit 1
-
-      - name: Extract tag and Details
-        id: release
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          NEW_VERSION=$(echo $TAG_NAME | awk -F'-' '{print $1}')
-          SUFFIX=$(echo $TAG_NAME | grep -oP '[a-z]+[0-9]+' || echo "")
-          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
-          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
-
-  check_pypi:
-    needs: details
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fetch information from PyPI
-        run: |
-          response=$(curl -s https://pypi.org/pypi/${{ env.PACKAGE_NAME }}/json || echo "{}")
-          latest_previous_version=$(echo $response | grep -oP '"releases":\{"\K[^"]+' | sort -rV | head -n 1)
-          if [ -z "$latest_previous_version" ]; then
-            echo "Package not found on PyPI."
-            latest_previous_version="0.0.0"
-          fi
-          echo "Latest version on PyPI: $latest_previous_version"
-          echo "latest_previous_version=$latest_previous_version" >> $GITHUB_ENV
-
-      - name: Compare versions and exit if not newer
-        run: |
-          NEW_VERSION=${{ needs.details.outputs.new_version }}
-          LATEST_VERSION=$latest_previous_version
-          if [ "$(printf '%s\n' "$LATEST_VERSION" "$NEW_VERSION" | sort -rV | head -n 1)" != "$NEW_VERSION" ] || [ "$NEW_VERSION" == "$LATEST_VERSION" ]; then
-            echo "The new version $NEW_VERSION is not greater than the latest version $LATEST_VERSION on PyPI."
-            exit 1
-          else
-            echo "The new version $NEW_VERSION is greater than the latest version $LATEST_VERSION on PyPI."
-          fi
   build:
     name: Build distribution
     runs-on: ubuntu-latest
