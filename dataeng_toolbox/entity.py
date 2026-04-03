@@ -2,8 +2,8 @@
 from typing import Union
 from pyspark.sql.types import StructType, StructField
 from pyspark.sql import DataFrame
-from dataeng_toolbox.model import ColumnModel
-from dataeng_toolbox.model import ScdType, Context, VTableModel
+from dataeng_toolbox.model import ColumnModel, ScdType, VTableModel
+from dataeng_toolbox.core import Context
 from abc import ABC, abstractmethod
 
 class BaseEntity(ABC):
